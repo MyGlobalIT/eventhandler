@@ -1,34 +1,31 @@
 <?php
+error_reporting(1);
+ini_set('display_errors', 1);
 
 require_once __DIR__.'/../vendor/autoload.php';
+include __DIR__.'/config/config.php';
 
 $app = new Silex\Application();
 
-// ... definitions
+//default definitions
 $app->get('/', function () use ($blogPosts) {
     return '<h3>Welcome to Event Handler </h3>';
 });
 
-$blogPosts = array(
-    1 => array(
-        'date'      => '2011-03-29',
-        'author'    => 'igorw',
-        'title'     => 'Using Silex',
-        'body'      => '...',
+//register database connection
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver'   => DB_DRIVER,
+        'host' => DB_HOST,
+        'dbname'=> DB_NAME,
+        'user' => DB_USER,
+        'password' => DB_PASSWORD,
+        'charset' => DB_CHARSET
     ),
-);
+));
 
-$app->get('/blog', function () use ($blogPosts) {
-    $output = '';
-    foreach ($blogPosts as $post) {
-        $output .= $post['title'];
-        $output .= '<br />';
-    }
-
-    return $output;
-});
-
-
+//load the "callback" controller
+$app->mount('/callback', include __DIR__.'/controllers/callback.php');
 
 $app['debug'] = true;
 

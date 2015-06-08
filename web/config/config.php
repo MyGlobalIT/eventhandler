@@ -1,4 +1,5 @@
 <?php
+
 //Define database related constants
 
 define('DB_DRIVER', 'pdo_mysql');

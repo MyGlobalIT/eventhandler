@@ -12,7 +12,7 @@ $getdata->post('/', function (Request $request) use ($app) {
             $output = $input = array();
 
             //build the query
-            $sql = 'SELECT token, status FROM `events` WHERE 1=1 ';
+            $sql = 'SELECT token, status, UNIX_TIMESTAMP(dated) as `dated` FROM `events` WHERE 1=1 ';
             if ($organizationId = $request->request->get('organizationId', false)) {
                 $sql .= ' AND organization_id = ?';
                 $input[] = $organizationId;
@@ -28,13 +28,16 @@ $getdata->post('/', function (Request $request) use ($app) {
                 $input[] = $limit;
             }
             $sql .= ' ORDER BY `dated` DESC';
+            
+            $sql = 'SELECT a.* FROM ('.$sql.') as a GROUP BY a.token';
 
             $result = $app['db']->executeQuery($sql, $input);
-            //prepare output
+            //prepare output & send only latest status
             foreach ($result as $key => $record) {
-                $output[$record['token']][] = $record['status'];
+                $output[$key]['token'] = $record['token'];   
+                $output[$key]['event'] = $record['status'];
+                $output[$key]['timestamp'] = $record['dated'];
             }
-
             return new Response(json_encode($output));
         });
 

@@ -1,6 +1,6 @@
 <?php
 
-//Define database related constants
+/*Define database related constants*/
 
 define('DB_DRIVER', 'pdo_mysql');
 define('DB_CHARSET', 'utf8');
